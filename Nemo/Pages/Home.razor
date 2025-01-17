@@ -25,34 +25,17 @@
 
   <article class="content px-4">
     
-    @* <button @onclick='(() => SelectTool("pencil"))'>
-      Pencil
-    </button>
-    <button @onclick='(() => SelectTool("rect"))'>
-      Rect
-    </button>
-    <button @onclick='(() => SelectTool("circle"))'>
-      Circle
-    </button>
-    <button @onclick='(() => SelectTool("eraser"))'>
-      Eraser
-    </button> *@
-    @* <button @onclick="ClearSvg">
-      Clear SVG
-    </button> *@
-
-
     <div class="p-3" id="canvasContainer">
-      <svg id="canvas" style="
+      <canvas id="canvas" width="800" 
+      height="600"
+      style="
         background-color: transparent; 
         border: solid 1px black;
         position: fixed;
         top: 119px;
         left: 208px;
-        width: calc(80vw - 100px);
-        height: 657px;
         cursor: @MouseCursor" @onmousedown="StartToolAction" @onmouseup="EndToolAction" @onmousemove="MoveTool">
-      </svg>
+      </canvas>
     </div>
 
   </article>

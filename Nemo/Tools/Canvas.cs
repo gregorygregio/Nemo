@@ -17,7 +17,7 @@ namespace Nemo.Tools
             switch (tool.ToLower())
             {
                 case "pencil":
-                    selectedTool = new Pencil(this);
+                    selectedTool = new Pencil();
                     CursorType = "cell";
                     break;
                 case "rect":
@@ -40,7 +40,6 @@ namespace Nemo.Tools
         }
 
         public async Task ElementClicked(string elementId) {
-            Console.WriteLine("ElementClicked");
             if(selectedTool == null) {
                 return;
             }

@@ -9,18 +9,23 @@ namespace Nemo.Tools.Drawing {
         private readonly Canvas _canvas;
         public bool startDraw { get; set; }
         public Point? previousPoint { get; set; }
-        private string elementId { get; set; } = string.Empty;
-        public Pencil(Canvas canvas)
+        public Pencil()
         {
-            _canvas = canvas;
         }
 
         public override IEnumerable<CanvasCommand> End(Point point)
         {
             startDraw = false;
             previousPoint = null;
-            elementId = string.Empty;
-            return new List<CanvasCommand>();
+            var commands = new List<CanvasCommand>();
+            
+            commands.Add(new DrawDotCommand( 
+                    point.X,
+                    point.Y,
+                    "red"
+                ));
+
+            return commands;
         }
 
         public override IEnumerable<CanvasCommand> Start(Point point)
@@ -29,14 +34,11 @@ namespace Nemo.Tools.Drawing {
             previousPoint = point;
             startDraw = true;
 
-            elementId = string.Concat("circle_", Guid.NewGuid().ToString());
-            commands.Add(new AddElementCommand("circle", elementId, 
-                new {
-                    cx   = point.X,
-                    cy   = point.Y,
-                    fill = "red",
-                    r    = 2,
-                }));
+            commands.Add(new DrawDotCommand( 
+                    point.X,
+                    point.Y,
+                    "red"
+                ));
 
             return commands;
         }
@@ -48,20 +50,14 @@ namespace Nemo.Tools.Drawing {
 
             var commands = new List<CanvasCommand>();
             
-            if(string.IsNullOrEmpty(elementId)) {
-                elementId = string.Concat("line_", Guid.NewGuid().ToString());
-            }
-            
             if(previousPoint != null) {
-                commands.Add(new AddElementCommand("line", elementId,
-                    new 
-                    {
-                        x1   = previousPoint.Value.X,
-                        y1   = previousPoint.Value.Y,
-                        x2   = point.X,
-                        y2   = point.Y,
-                        style = "stroke: red; stroke-width: 4px"
-                    }));
+                commands.Add(new DrawLineCommand(
+                        previousPoint.Value.X,
+                        previousPoint.Value.Y,
+                        point.X,
+                        point.Y,
+                        "red"
+                    ));
                 previousPoint = point;
             }
 

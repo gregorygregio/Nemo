@@ -49,15 +49,12 @@ namespace Nemo.Tools.Drawing
             string elementId = string.Concat("rect_", Guid.NewGuid().ToString());
 
             commands.Add(
-                new AddElementCommand(
-                    "rect", elementId,
-                    new {
-                        x = coords.X,
-                        y = coords.Y,
-                        width = coords.Width,
-                        height = coords.Height,
-                        style="fill:transparent;stroke:red;stroke-width:2"
-                    }
+                new DrawRectCommand(
+                    coords.X,
+                    coords.Y,
+                    coords.Width,
+                    coords.Height,
+                    "red"
                 )
             );
             startingPoint = null;
@@ -79,15 +76,12 @@ namespace Nemo.Tools.Drawing
             var coords = GetRectCoords(point, startingPoint.Value);
 
             commands.Add(
-                new AddElementCommand(
-                    "rect", "shadowRect1",
-                    new {
-                        x = coords.X,
-                        y = coords.Y,
-                        width = coords.Width,
-                        height = coords.Height,
-                        style="fill:transparent;stroke:black;stroke-width:1"
-                    }
+                new DrawRectCommand(
+                    coords.X,
+                    coords.Y,
+                    coords.Width,
+                    coords.Height,
+                    "gray"
                 )
             );
 

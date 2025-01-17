@@ -1,7 +1,4 @@
 
-
-using System.Drawing;
-
 namespace Nemo.Tools.CanvasCommands
 {
     public class AddElementCommand : CanvasCommand

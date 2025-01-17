@@ -47,18 +47,14 @@ namespace Nemo.Tools.Drawing
             }
 
             var coords = GetCircleCoords(point, startingPoint.Value);
-            
-            commands.Add(new RemoveElementCommand("circleShadow"));
-            
-            string elementId = string.Concat("circle_", Guid.NewGuid().ToString());
 
-            commands.Add(new AddElementCommand("circle", elementId, 
-                new {
-                    cx   = coords.X,
-                    cy   = coords.Y,
-                    style="fill:transparent;stroke:red;stroke-width:2",
-                    r    = coords.Radius,
-                }));
+            commands.Add(new DrawCircleCommand
+            (
+                    coords.X,
+                    coords.Y,
+                    (int)coords.Radius,
+                    "red"
+            ));
 
             startingPoint = null;
             
@@ -76,13 +72,13 @@ namespace Nemo.Tools.Drawing
 
             commands.Add(new RemoveElementCommand("circleShadow"));
 
-            commands.Add(new AddElementCommand("circle", "circleShadow", 
-                new {
-                    cx   = coords.X,
-                    cy   = coords.Y,
-                    style="fill:transparent;stroke: black; stroke-width: 1px",
-                    r    = coords.Radius,
-                }));
+            commands.Add(new DrawCircleCommand
+            (
+                    coords.X,
+                    coords.Y,
+                    (int)coords.Radius,
+                    "red"
+            ));
                 
             return commands;
         }

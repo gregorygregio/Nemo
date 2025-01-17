@@ -34,6 +34,57 @@ window.setSource = async (elementId, stream, contentType, title) => {
     canvas.prepend(svgElement);
 };
 
+window.drawRect = async (x, y, width, height, color) => {
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = color;
+    
+    ctx.strokeRect(x, y, width, height);
+}
+
+window.drawDot = async (x, y, color) => {
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+    ctx.fillRect(x, y, 1, 1);
+    
+}
+
+window.drawLine = async (x1, y1, x2, y2, color) => {
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = color;
+    
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+
+window.drawCircle = async (x, y, radius, color) => {
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext('2d');
+
+    ctx.strokeStyle = color;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, true);
+    ctx.stroke();
+}
+
+
+window.clearCanvas = async () => {
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 800, 600);
+}
+
 window.addSvgElement = async (elementName, elementId, attrs) => {
     const canvas = document.querySelector("#canvas");
     const svgElement = document.createElementNS("http://www.w3.org/2000/svg", elementName)
@@ -58,6 +109,7 @@ window.removeSvgElement = async (elementId) => {
     }
 };
 
+
 window.clearSvgElements = () => {
     const svg = document.getElementById('canvas');
     for (var i = svg.children.length - 1; i >= 0; i--) {
@@ -69,20 +121,20 @@ window.clearSvgElements = () => {
 }
 
 
-window.getSvg = async () => {
-    const input = document.querySelector('#canvas')
-    const svgData = new XMLSerializer().serializeToString(input)
-    return svgData;
-}
+// window.getSvg = async () => {
+//     const input = document.querySelector('#canvas')
+//     const svgData = new XMLSerializer().serializeToString(input)
+//     return svgData;
+// }
 
-window.downloadSvg = async (fileName, svgData) => {
-    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const downloadLink = document.createElement("a");
-    downloadLink.href = svgUrl;
-    downloadLink.download = fileName + ".svg";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(svgUrl);
-}
+// window.downloadSvg = async (fileName, svgData) => {
+//     const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+//     const svgUrl = URL.createObjectURL(svgBlob);
+//     const downloadLink = document.createElement("a");
+//     downloadLink.href = svgUrl;
+//     downloadLink.download = fileName + ".svg";
+//     document.body.appendChild(downloadLink);
+//     downloadLink.click();
+//     document.body.removeChild(downloadLink);
+//     URL.revokeObjectURL(svgUrl);
+// }
