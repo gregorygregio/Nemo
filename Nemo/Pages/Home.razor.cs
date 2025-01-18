@@ -32,14 +32,35 @@ namespace Nemo.Pages {
             await canvas.ElementClicked(elementId);
         }
 
+        [JSInvokable]
+        public void SetImageSize(ImageSize imageSize) {
+            Console.WriteLine("SetImageSize");
+            Console.WriteLine(imageSize.width);
+            Console.WriteLine(imageSize.height);
+            Console.WriteLine(imageSize);
+
+            canvas.Width = imageSize.width;
+            canvas.Height = imageSize.height;
+        }
+
+        public record ImageSize(int width, int height);
+
         public async void LoadImage(InputFileChangeEventArgs e) {
             using var readStream = e.File.OpenReadStream(maxAllowedSize: maxAllowedSize);
 
-            var strRef = new DotNetStreamReference(readStream);
-            
             fileName = e.File.Name;
             fileContentType = e.File.ContentType;
+            if(fileContentType != "image/png" && fileContentType != "image/jpeg") {
+                Console.WriteLine("Invalid file type");
+                await _jsRuntime.InvokeVoidAsync("displayErrorMessage", "Invalid file type");    
+                return;
+            }
 
+            Console.WriteLine("ContentType: " + e.File.ContentType);
+
+            var strRef = new DotNetStreamReference(readStream);
+
+            canvas.HasImageLoaded = true;
             await _jsRuntime.InvokeVoidAsync("setSource", "baseImage", strRef, e.File.ContentType, 
             e.File.Name);
         }
@@ -66,9 +87,9 @@ namespace Nemo.Pages {
         }
 
         public async Task Export() {
-            var svg = await _jsRuntime.InvokeAsync<string>("getSvg");
-            var bytes = Encoding.UTF8.GetBytes(svg);
-            await _jsRuntime.InvokeVoidAsync("downloadSvg", fileName, bytes);
+            await _jsRuntime.InvokeVoidAsync("downloadImage", fileName, fileContentType);
+            //var bytes = Encoding.UTF8.GetBytes(svg);
+            //await _jsRuntime.InvokeVoidAsync("downloadSvg", fileName, bytes);
             //var img = new Image() { Src = $"data:image/svg+xml;base64,{base64}" };
             //await _jsRuntime.InvokeVoidAsync("exportSvg");
         }

@@ -8,13 +8,17 @@
 
 <main>
   <div class="top-row px-4 navbar navbar-dark">
+    <div class="file-name-container">
+      <InputText @bind-Value="fileName" class="form-control" disabled="true" />
+    </div>
+
     <label class="custom-file-label" for="fileInput">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16">
         <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a2 2 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139q.323-.119.684-.12h5.396z"/>
       </svg>
       Select Image
     </label>
-    <InputFile id="fileInput" class="custom-file-input" OnChange="LoadImage" />
+    <InputFile id="fileInput" class="custom-file-input" OnChange="LoadImage" hidden />
     <button @onclick="Export" class="btn btn-primary">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy-fill" viewBox="0 0 16 16">
         <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5z"/>
@@ -23,20 +27,30 @@
     </button>
   </div>
 
-  <article class="content px-4">
-    
-    <div class="p-3" id="canvasContainer">
-      <canvas id="canvas" width="800" 
-      height="600"
-      style="
-        background-color: transparent; 
-        border: solid 1px black;
-        position: fixed;
-        top: 119px;
-        left: 208px;
-        cursor: @MouseCursor" @onmousedown="StartToolAction" @onmouseup="EndToolAction" @onmousemove="MoveTool">
-      </canvas>
-    </div>
+  @if(canvas != null) {
+    <article class="content px-4" style="@(canvas.HasImageLoaded ? "" : "display: none;" )">
+      
+      <div class="p-3" id="canvasContainer">
+        <canvas id="canvas" 
+          style="
+            border: solid 1px black;
+            position: fixed;
+            top: 119px;
+            left: 208px;
+            cursor: @MouseCursor" 
+            >
+        </canvas>
+        <svg id="svg" 
+          style="position: fixed; top: 119px; left: 208px;"
+          @onmousedown="StartToolAction" @onmouseup="EndToolAction" @onmousemove="MoveTool"
+          >
+        </svg>
+      </div>
 
-  </article>
+    </article>
+
+    <article class="content px-4" style="@(canvas.HasImageLoaded ? "display: none;" : "")">
+      <p class="text-center">Select an image to start drawing</p>
+    </article>
+  }
 </main>

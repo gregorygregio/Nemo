@@ -7,6 +7,9 @@ namespace Nemo.Tools
 {
     public class Canvas {
         private IJSRuntime _jsRuntime { get; set; }
+        public int Width { get; set; } = 800;
+        public int Height { get; set; } = 600;
+        public bool HasImageLoaded { get; set; } = false;
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
