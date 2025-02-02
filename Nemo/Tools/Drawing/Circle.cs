@@ -7,7 +7,9 @@ namespace Nemo.Tools.Drawing
     public class Circle : BaseTool
     {
         private Point? startingPoint { get; set; }
-
+        public Circle(Canvas canvas) : base(canvas)
+        {
+        }
         private CircleCoords GetCircleCoords(Point a, Point b) 
         {
             int minX, maxX, minY, maxY;
@@ -39,55 +41,55 @@ namespace Nemo.Tools.Drawing
             return new CircleCoords(xPosition, yPosition, radius);
 
         }
-        public override IEnumerable<CanvasCommand> End(Point point)
+        public override async Task End(Point point)
         {
-            var commands = new List<CanvasCommand>();
             if(!startingPoint.HasValue) {
-                return commands;
+                return;
             }
+
+            await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowCircle" });
 
             var coords = GetCircleCoords(point, startingPoint.Value);
 
-            commands.Add(new DrawCircleCommand
-            (
-                    coords.X,
-                    coords.Y,
-                    (int)coords.Radius,
-                    "red"
-            ));
+            await _canvas.ExecuteAction("drawCircle", new object[4] {
+                coords.X,
+                coords.Y,
+                (int)coords.Radius,
+                "red"
+            });
 
             startingPoint = null;
-            
-            return commands;
         }
 
-        public override IEnumerable<CanvasCommand> OnMove(Point point)
+        public override async Task OnMove(Point point)
         {
-            var commands = new List<CanvasCommand>();
             if(!startingPoint.HasValue) {
-                return commands;
+                return;
             }
+
+            await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowCircle" });
 
             var coords = GetCircleCoords(point, startingPoint.Value);
 
-            commands.Add(new RemoveElementCommand("circleShadow"));
+            await _canvas.ExecuteAction("addSvgElement", new object[] {
+                "circle", "shadowCircle",
+                new {
+                    cx=coords.X, cy=coords.Y, r=coords.Radius, 
+                    style="stroke: red; stroke-width: 1; fill: none"
+                }
+            });
 
-            commands.Add(new DrawCircleCommand
-            (
-                    coords.X,
-                    coords.Y,
-                    (int)coords.Radius,
-                    "red"
-            ));
-                
-            return commands;
         }
 
-        public override IEnumerable<CanvasCommand> Start(Point point)
+        public override async Task Start(Point point)
         {
-            var commands = new List<CanvasCommand>();
             startingPoint = point;
-            return commands;
+        }
+
+        public override async Task Cancel()
+        {
+            await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowCircle" });
+            startingPoint = null;
         }
     }
 }

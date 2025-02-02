@@ -7,6 +7,9 @@ namespace Nemo.Tools.Drawing
     internal record RectCoords(int X, int Y, int Width, int Height) {}
     public class Rect : BaseTool
     {
+        public Rect(Canvas canvas): base(canvas)
+        {
+        }
         private Point? startingPoint { get; set; }
         private bool hasShadowRectDrawn { get; set; } = false;
         private RectCoords GetRectCoords(Point a, Point b) {
@@ -33,67 +36,56 @@ namespace Nemo.Tools.Drawing
     
             return new RectCoords(minX, minY, maxX - minX, maxY - minY);
         }
-        public override IEnumerable<CanvasCommand> End(Point point)
+        public override async Task End(Point point)
         {
-            var commands = new List<CanvasCommand>();
-
             if(!startingPoint.HasValue) {
-                return commands;
+                return;
             }
 
             if(hasShadowRectDrawn) {
-                commands.Add(new RemoveElementCommand("shadowRect1"));
+                await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowRect1" });
             }
             
             var coords = GetRectCoords(point, startingPoint.Value);
-            string elementId = string.Concat("rect_", Guid.NewGuid().ToString());
 
-            commands.Add(
-                new DrawRectCommand(
-                    coords.X,
-                    coords.Y,
-                    coords.Width,
-                    coords.Height,
-                    "red"
-                )
-            );
+            await _canvas.ExecuteAction("drawRect", new object[5] {
+                coords.X, coords.Y, coords.Width, coords.Height, "red"
+            });
             startingPoint = null;
             hasShadowRectDrawn = false;
-            return commands;
         }
 
-        public override IEnumerable<CanvasCommand> OnMove(Point point)
+        public override async Task OnMove(Point point)
         {
-            var commands = new List<CanvasCommand>();
             if(!startingPoint.HasValue) {
-                return commands;
+                return;
             }
 
             if(hasShadowRectDrawn) {
-                commands.Add(new RemoveElementCommand("shadowRect1"));
+                await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowRect1" });
             }
 
             var coords = GetRectCoords(point, startingPoint.Value);
-
-            commands.Add(
-                new DrawRectCommand(
-                    coords.X,
-                    coords.Y,
-                    coords.Width,
-                    coords.Height,
-                    "gray"
-                )
-            );
+            
+            await _canvas.ExecuteAction("addSvgElement", new object[] {
+                "rect", "shadowRect1",
+                new {
+                    x=coords.X, y=coords.Y, width=coords.Width, height=coords.Height, 
+                    style="stroke: red; stroke-width: 1; fill: none"
+                }
+            });
 
             hasShadowRectDrawn = true;
-
-            return commands;
         }
 
-        public override IEnumerable<CanvasCommand> Start(Point point)
+        public override async Task Start(Point point)
         {
             startingPoint = point;
-            return new List<CanvasCommand>();
+        }
+        public override async Task Cancel()
+        {
+            await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowRect1" });
+            startingPoint = null;
         }
     }
 }

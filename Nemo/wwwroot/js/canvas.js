@@ -4,37 +4,57 @@ GLOBAL.SetDotnetReference = function (pDotNetReference) {
     GLOBAL.DotNetReference = pDotNetReference;
 };
 
+const CANVAS_ID = '#canvas';
 
-window.setSource = async (elementId, stream, contentType, title) => {
+
+window.setSource = async (elementId, stream, contentType) => {
+    console.log("setSource", elementId, stream, contentType);
     const arrayBuffer = await stream.arrayBuffer();
+    console.log("arrayBuffer", arrayBuffer);
     let blobOptions = {};
     if (contentType) {
         blobOptions['type'] = contentType;
     }
     const blob = new Blob([arrayBuffer], blobOptions);
     const url = URL.createObjectURL(blob);
+    console.log("url", url);
 
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
 
     const img = new Image();
     img.src = url;
 
     img.onload = async () => {
+        console.log("Image loaded");
         await GLOBAL.DotNetReference.invokeMethodAsync('SetImageSize', { width: img.width, height: img.height });
         canvas.setAttribute('width', img.width);
         canvas.setAttribute('height', img.height);
         const svg = document.querySelector("#svg");
         svg.setAttribute('width', img.width);
         svg.setAttribute('height', img.height);
-
+        console.log("drawing image", img);
         ctx.drawImage(img, 0, 0);
     }
 
 };
 
+
+window.getImageData = async () => {
+    const canvas = document.querySelector(CANVAS_ID)
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    contentType = 'image/jpeg';
+    let blobOptions = {};
+    if (contentType) {
+        blobOptions['type'] = contentType;
+    }
+    const blob = new Blob([imageData.data], blobOptions);
+    return blob;
+}
+
 window.drawRect = async (x, y, width, height, color) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
 
     ctx.strokeStyle = color;
@@ -43,7 +63,7 @@ window.drawRect = async (x, y, width, height, color) => {
 }
 
 window.drawDot = async (x, y, color) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
 
     ctx.fillStyle = color;
@@ -54,7 +74,7 @@ window.drawDot = async (x, y, color) => {
 }
 
 window.drawLine = async (x1, y1, x2, y2, color) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
 
     ctx.strokeStyle = color;
@@ -67,7 +87,7 @@ window.drawLine = async (x1, y1, x2, y2, color) => {
 
 
 window.drawCircle = async (x, y, radius, color) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
 
     ctx.strokeStyle = color;
@@ -78,17 +98,21 @@ window.drawCircle = async (x, y, radius, color) => {
 }
 
 
-window.clearCanvas = async () => {
-    const canvas = document.querySelector("#canvas");
+window.clearCanvas = async (width, height) => {
+    const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, 800, 600);
+    ctx.clearRect(0, 0, width, height);
+}
+
+window.clearRect = async (x, y, width, height) => {
+    const canvas = document.querySelector(CANVAS_ID);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(x, y, width, height);
 }
 
 
-
-
 window.addSvgElement = async (elementName, elementId, attrs) => {
-    const canvas = document.querySelector("#canvas");
+    const canvas = document.querySelector("#svg");
     const svgElement = document.createElementNS("http://www.w3.org/2000/svg", elementName)
     for (let key in attrs) {
         svgElement.setAttribute(key, attrs[key]);
@@ -104,8 +128,7 @@ window.addSvgElement = async (elementName, elementId, attrs) => {
 };
 
 window.removeSvgElement = async (elementId) => {
-    console.log("removeSvgElement ", elementId)
-    const elements = document.querySelectorAll("#canvas #" + elementId);
+    const elements = document.querySelectorAll("#svg #" + elementId);
     for (var i = 0; i < elements.length; i++) {
         elements[i].remove();
     }
@@ -113,7 +136,7 @@ window.removeSvgElement = async (elementId) => {
 
 
 window.clearSvgElements = () => {
-    const svg = document.getElementById('canvas');
+    const svg = document.getElementById('svg');
     for (var i = svg.children.length - 1; i >= 0; i--) {
         var el = svg.children[i];
         if (el.tagName == 'image') { console.log(el.tagName); continue; }
@@ -124,7 +147,7 @@ window.clearSvgElements = () => {
 
 
 window.downloadImage = async (fileName, contentType) => {
-    const canvas = document.querySelector('#canvas')
+    const canvas = document.querySelector(CANVAS_ID)
     const imgUrl = canvas.toDataURL(contentType);
     const downloadLink = document.createElement("a");
     downloadLink.href = imgUrl;
@@ -132,19 +155,6 @@ window.downloadImage = async (fileName, contentType) => {
     downloadLink.click();
     URL.revokeObjectURL(imgUrl);
 }
-
-window.downloadSvg = async (fileName, svgData) => {
-    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    const downloadLink = document.createElement("a");
-    downloadLink.href = svgUrl;
-    downloadLink.download = fileName + ".svg";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(svgUrl);
-}
-
 
 window.displayErrorMessage = async (message) => {
     alert(message);

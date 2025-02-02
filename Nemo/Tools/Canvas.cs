@@ -10,6 +10,7 @@ namespace Nemo.Tools
         public int Width { get; set; } = 800;
         public int Height { get; set; } = 600;
         public bool HasImageLoaded { get; set; } = false;
+        public string ContentType { get; set; }
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
@@ -20,19 +21,23 @@ namespace Nemo.Tools
             switch (tool.ToLower())
             {
                 case "pencil":
-                    selectedTool = new Pencil();
+                    selectedTool = new Pencil(this);
                     CursorType = "cell";
                     break;
                 case "rect":
-                    selectedTool = new Rect();
+                    selectedTool = new Rect(this);
                     CursorType = "cell";
                     break;
                 case "circle":
-                    selectedTool = new Circle();
+                    selectedTool = new Circle(this);
                     CursorType = "cell";
                     break;
                 case "eraser":
-                    selectedTool = new Eraser();
+                    selectedTool = new Eraser(this);
+                    CursorType = "grabbing";
+                    break;
+                case "crop":
+                    selectedTool = new Crop(this);
                     CursorType = "crosshair";
                     break;
                 default:
@@ -47,11 +52,7 @@ namespace Nemo.Tools
                 return;
             }
 
-            var commands = selectedTool.OnElementClicked(elementId);
-
-            foreach(var c in commands) {
-                await _jsRuntime.InvokeVoidAsync(c.GetAction(), c.GetParameters());
-            }
+            await selectedTool.OnElementClicked(elementId);
         }
 
         public async Task StartToolAction(MouseEventArgs e)
@@ -60,11 +61,7 @@ namespace Nemo.Tools
                 return;
             }
             
-            var commands = selectedTool.Start(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));    
-
-            foreach(var c in commands) {
-                await _jsRuntime.InvokeVoidAsync(c.GetAction(), c.GetParameters());
-            }
+            await selectedTool.Start(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));    
         }
 
         public async Task EndToolAction(MouseEventArgs e) {
@@ -72,11 +69,7 @@ namespace Nemo.Tools
                 return;
             }
             
-            var commands = selectedTool.End(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));
-
-            foreach(var c in commands) {
-                await _jsRuntime.InvokeVoidAsync(c.GetAction(), c.GetParameters());
-            }
+            await selectedTool.End(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));
         }
 
         public async Task MoveTool(MouseEventArgs e)
@@ -85,11 +78,37 @@ namespace Nemo.Tools
                 return;
             }
 
-            var commands = selectedTool.OnMove(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));
-
-            foreach(var c in commands) {
-                await _jsRuntime.InvokeVoidAsync(c.GetAction(), c.GetParameters());
-            }
+            await selectedTool.OnMove(new System.Drawing.Point((int)e.OffsetX, (int)e.OffsetY));
         }
+
+        public async Task CancelToolAction(MouseEventArgs e) {
+            if(selectedTool == null) {
+                return;
+            }
+
+            await selectedTool.Cancel();
+        }
+
+        public async Task ExecuteAction(string action, object?[]? args) {
+            await _jsRuntime.InvokeVoidAsync(action, args);
+        }
+
+        public async Task<Stream> GetImage() {
+            var imageStream = await _jsRuntime.InvokeAsync<IJSStreamReference>("getImageData");
+            using var stream = await imageStream.OpenReadStreamAsync();
+            return stream;
+            //var imageBytes = System.Convert.FromBase64String();
+            //Console.WriteLine(imageBytes);
+        }
+
+        public async Task SetImage(Stream imageStream) {
+            Console.WriteLine("Setting image " + imageStream.Length);
+            Console.WriteLine(imageStream.Length);
+            HasImageLoaded = true;
+            var strRef = new DotNetStreamReference(imageStream);
+            await _jsRuntime.InvokeVoidAsync("setSource", "baseImage", strRef, ContentType);
+
+        }
+
     }
 }

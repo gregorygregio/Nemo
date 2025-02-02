@@ -49,20 +49,15 @@ namespace Nemo.Pages {
             using var readStream = e.File.OpenReadStream(maxAllowedSize: maxAllowedSize);
 
             fileName = e.File.Name;
-            fileContentType = e.File.ContentType;
-            if(fileContentType != "image/png" && fileContentType != "image/jpeg") {
+            canvas.ContentType = e.File.ContentType;
+            if(canvas.ContentType != "image/png" && canvas.ContentType != "image/jpeg") {
                 Console.WriteLine("Invalid file type");
                 await _jsRuntime.InvokeVoidAsync("displayErrorMessage", "Invalid file type");    
                 return;
             }
 
-            Console.WriteLine("ContentType: " + e.File.ContentType);
-
-            var strRef = new DotNetStreamReference(readStream);
-
             canvas.HasImageLoaded = true;
-            await _jsRuntime.InvokeVoidAsync("setSource", "baseImage", strRef, e.File.ContentType, 
-            e.File.Name);
+            await canvas.SetImage(readStream);
         }
 
         public void SelectTool(string tool) {
@@ -76,6 +71,9 @@ namespace Nemo.Pages {
                 return;
             }
             await canvas.StartToolAction(e);
+        }
+        public async Task CancelToolAction(MouseEventArgs e) {
+            await canvas.CancelToolAction(e);
         }
 
         public async Task MoveTool(MouseEventArgs e) {
@@ -94,9 +92,9 @@ namespace Nemo.Pages {
             //await _jsRuntime.InvokeVoidAsync("exportSvg");
         }
 
-        private void ClearSvg()
+        private void ClearCanvas()
         {
-            _jsRuntime.InvokeVoidAsync("clearSvgElements");
+            _jsRuntime.InvokeVoidAsync("clearCanvas", canvas.Width, canvas.Height);
         }
     }
 }

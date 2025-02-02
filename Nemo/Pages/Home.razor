@@ -3,7 +3,7 @@
 <PageTitle>Home</PageTitle>
 
 <div class="sidebar">
-  <NavMenu OnSelectTool="SelectTool" OnClearSvg="ClearSvg"/>
+  <NavMenu OnSelectTool="SelectTool" OnClearCanvas="ClearCanvas"/>
 </div>
 
 <main>
@@ -37,12 +37,13 @@
             position: fixed;
             top: 119px;
             left: 208px;
-            cursor: @MouseCursor" 
+            "
             >
         </canvas>
         <svg id="svg" 
-          style="position: fixed; top: 119px; left: 208px;"
+          style="position: fixed; top: 119px; left: 208px;cursor: @MouseCursor"
           @onmousedown="StartToolAction" @onmouseup="EndToolAction" @onmousemove="MoveTool"
+          @onmouseleave="CancelToolAction"
           >
         </svg>
       </div>

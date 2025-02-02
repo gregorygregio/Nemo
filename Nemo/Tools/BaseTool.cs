@@ -5,9 +5,15 @@ namespace Nemo.Tools
 {
     public class BaseTool : ITool
     {
-        public virtual IEnumerable<CanvasCommand> Start(Point point) => new List<CanvasCommand>();
-        public virtual IEnumerable<CanvasCommand> End(Point point) => new List<CanvasCommand>();
-        public virtual IEnumerable<CanvasCommand> OnMove(Point point) => new List<CanvasCommand>();
-        public virtual IEnumerable<CanvasCommand> OnElementClicked(string elementId) => new List<CanvasCommand>();
+        protected readonly Canvas _canvas;
+        public BaseTool(Canvas canvas)
+        {
+            _canvas = canvas;
+        }
+        public virtual Task Start(Point point) => Task.CompletedTask;
+        public virtual Task End(Point point) => Task.CompletedTask;
+        public virtual Task OnMove(Point point) => Task.CompletedTask;
+        public virtual Task OnElementClicked(string elementId) => Task.CompletedTask;
+        public virtual Task Cancel() => Task.CompletedTask;
     }
 }
