@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Nemo.Tools.Drawing;
@@ -7,10 +8,12 @@ namespace Nemo.Tools
 {
     public class Canvas {
         private IJSRuntime _jsRuntime { get; set; }
+        private const long maxAllowedSize = 1024 * 1024 * 1024; //1GB
         public int Width { get; set; } = 800;
         public int Height { get; set; } = 600;
         public bool HasImageLoaded { get; set; } = false;
         public string ContentType { get; set; }
+        public string FileName { get; set; }
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
@@ -91,6 +94,23 @@ namespace Nemo.Tools
 
         public async Task ExecuteAction(string action, object?[]? args) {
             await _jsRuntime.InvokeVoidAsync(action, args);
+        }
+
+        public async Task LoadImage(IBrowserFile file) {
+            using var readStream = file.OpenReadStream(maxAllowedSize: maxAllowedSize);
+
+            var _contentType = file.ContentType;
+            if(_contentType != "image/png" && _contentType != "image/jpeg") {
+                Console.WriteLine("Invalid file type");
+                await _jsRuntime.InvokeVoidAsync("displayErrorMessage", "Invalid file type");    
+                return;
+            }
+
+            FileName = file.Name;
+            ContentType = _contentType;
+
+            HasImageLoaded = true;
+            await SetImage(readStream);
         }
 
         public async Task<Stream> GetImage() {

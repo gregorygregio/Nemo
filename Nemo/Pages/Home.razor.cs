@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
@@ -8,12 +7,9 @@ using Nemo.Tools;
 
 namespace Nemo.Pages {
     public partial class Home {
-        private const long maxAllowedSize = 1024 * 1024 * 1024; //1GB
         [Inject]
         private IJSRuntime _jsRuntime { get; set; }
         private Canvas canvas { get; set;}
-        private string fileName { get; set; }
-        private string fileContentType { get; set; }
 
         public string MouseCursor { get {
             return canvas?.CursorType != null ? canvas.CursorType : "default";
@@ -46,18 +42,7 @@ namespace Nemo.Pages {
         public record ImageSize(int width, int height);
 
         public async void LoadImage(InputFileChangeEventArgs e) {
-            using var readStream = e.File.OpenReadStream(maxAllowedSize: maxAllowedSize);
-
-            fileName = e.File.Name;
-            canvas.ContentType = e.File.ContentType;
-            if(canvas.ContentType != "image/png" && canvas.ContentType != "image/jpeg") {
-                Console.WriteLine("Invalid file type");
-                await _jsRuntime.InvokeVoidAsync("displayErrorMessage", "Invalid file type");    
-                return;
-            }
-
-            canvas.HasImageLoaded = true;
-            await canvas.SetImage(readStream);
+            await canvas.LoadImage(e.File);
         }
 
         public void SelectTool(string tool) {
@@ -85,11 +70,7 @@ namespace Nemo.Pages {
         }
 
         public async Task Export() {
-            await _jsRuntime.InvokeVoidAsync("downloadImage", fileName, fileContentType);
-            //var bytes = Encoding.UTF8.GetBytes(svg);
-            //await _jsRuntime.InvokeVoidAsync("downloadSvg", fileName, bytes);
-            //var img = new Image() { Src = $"data:image/svg+xml;base64,{base64}" };
-            //await _jsRuntime.InvokeVoidAsync("exportSvg");
+            await _jsRuntime.InvokeVoidAsync("downloadImage", canvas.FileName, canvas.ContentType);
         }
 
         private void ClearCanvas()
