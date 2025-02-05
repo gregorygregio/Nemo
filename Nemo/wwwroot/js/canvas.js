@@ -7,8 +7,8 @@ GLOBAL.SetDotnetReference = function (pDotNetReference) {
 const CANVAS_ID = '#canvas';
 
 
-window.setSource = async (elementId, stream, contentType) => {
-    console.log("setSource", elementId, stream, contentType);
+window.setSource = async (stream, contentType) => {
+    console.log("setSource", stream, contentType);
     const arrayBuffer = await stream.arrayBuffer();
     console.log("arrayBuffer", arrayBuffer);
     let blobOptions = {};

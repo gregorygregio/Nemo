@@ -28,9 +28,9 @@
   </div>
 
   @if(canvas != null) {
-    <article class="content px-4" style="@(canvas.HasImageLoaded ? "" : "display: none;" )">
+    <article class="content px-4">
       
-      <div class="p-3" id="canvasContainer">
+      <div class="p-3" id="canvasContainer"  style="@(HasImageLoaded ? "" : "display: none;" )">
         <canvas id="canvas" 
           style="
             border: solid 1px black;
@@ -50,7 +50,7 @@
 
     </article>
 
-    <article class="content px-4" style="@(canvas.HasImageLoaded ? "display: none;" : "")">
+    <article class="content px-4" style="@(HasImageLoaded ? "display: none;" : "")">
       <p class="text-center">Select an image to start drawing</p>
     </article>
   }

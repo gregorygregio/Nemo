@@ -1,6 +1,4 @@
-
 using System.Drawing;
-using Nemo.Tools.CanvasCommands;
 
 namespace Nemo.Tools.Drawing
 {

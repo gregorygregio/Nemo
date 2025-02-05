@@ -1,15 +1,17 @@
 
 
 using System.Drawing;
-using Nemo.Tools.CanvasCommands;
+using Nemo.Tools.ElementTreeObjects;
 
 namespace Nemo.Tools.Drawing {
     public class Pencil : BaseTool
     {
         public bool startDraw { get; set; }
         public Point? previousPoint { get; set; }
-        public Pencil(Canvas canvas): base(canvas)
+        private ElementTreeDocument elementTreeDocument { get; set; }
+        public Pencil(Canvas canvas, ElementTreeDocument etc): base(canvas)
         {
+            elementTreeDocument = etc;
         }
 
         public override async Task End(Point point)
@@ -17,9 +19,8 @@ namespace Nemo.Tools.Drawing {
             startDraw = false;
             previousPoint = null;
             
-            await _canvas.ExecuteAction("drawDot", new object[3] {
-                point.X, point.Y, "red"
-            });
+            elementTreeDocument
+                .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
         }
 
         public override async Task Start(Point point)
@@ -27,9 +28,8 @@ namespace Nemo.Tools.Drawing {
             previousPoint = point;
             startDraw = true;
 
-            await _canvas.ExecuteAction("drawDot", new object[3] {
-                point.X, point.Y, "red"
-            });
+            elementTreeDocument
+                .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
         }
 
         public override async Task OnMove(Point point) {
@@ -38,13 +38,14 @@ namespace Nemo.Tools.Drawing {
             }
 
             if(previousPoint != null) {
-                await _canvas.ExecuteAction("drawLine", new object[5] {
+                elementTreeDocument
+                .AddElementTreeObject(new LineElementObject(
                     previousPoint.Value.X,
                     previousPoint.Value.Y,
                     point.X,
                     point.Y,
                     "red"
-                });
+                ));
                 previousPoint = point;
             }
         }

@@ -10,7 +10,7 @@ namespace Nemo.Pages {
         [Inject]
         private IJSRuntime _jsRuntime { get; set; }
         private Canvas canvas { get; set;}
-
+        public bool HasImageLoaded { get => canvas.HasImageLoaded; }
         public string MouseCursor { get {
             return canvas?.CursorType != null ? canvas.CursorType : "default";
         } set {} }
@@ -43,6 +43,7 @@ namespace Nemo.Pages {
 
         public async void LoadImage(InputFileChangeEventArgs e) {
             await canvas.LoadImage(e.File);
+            base.StateHasChanged();
         }
 
         public void SelectTool(string tool) {
@@ -70,7 +71,8 @@ namespace Nemo.Pages {
         }
 
         public async Task Export() {
-            await _jsRuntime.InvokeVoidAsync("downloadImage", canvas.FileName, canvas.ContentType);
+            //await _jsRuntime.InvokeVoidAsync("downloadImage", canvas.FileName, canvas.ContentType);
+            await Task.CompletedTask;
         }
 
         private void ClearCanvas()
