@@ -1,4 +1,4 @@
-using Nemo.Tools.CanvasCommands;
+using Nemo.Tools.ElementTreeObjects;
 using System.Drawing;
 
 namespace Nemo.Tools.Drawing
@@ -7,7 +7,7 @@ namespace Nemo.Tools.Drawing
     public class Circle : BaseTool
     {
         private Point? startingPoint { get; set; }
-        public Circle(Canvas canvas) : base(canvas)
+        public Circle(Canvas canvas, ElementTreeDocument etd) : base(canvas, etd)
         {
         }
         private CircleCoords GetCircleCoords(Point a, Point b) 
@@ -51,12 +51,8 @@ namespace Nemo.Tools.Drawing
 
             var coords = GetCircleCoords(point, startingPoint.Value);
 
-            await _canvas.ExecuteAction("drawCircle", new object[4] {
-                coords.X,
-                coords.Y,
-                (int)coords.Radius,
-                "red"
-            });
+            _elementTreeDocument
+                .AddElementTreeObject(new CircleElementObject(coords.X, coords.Y, (int)coords.Radius, "red"));
 
             startingPoint = null;
         }

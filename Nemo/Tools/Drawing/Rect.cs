@@ -1,11 +1,12 @@
 using System.Drawing;
+using Nemo.Tools.ElementTreeObjects;
 
 namespace Nemo.Tools.Drawing
 {
     internal record RectCoords(int X, int Y, int Width, int Height) {}
     public class Rect : BaseTool
     {
-        public Rect(Canvas canvas): base(canvas)
+        public Rect(Canvas canvas, ElementTreeDocument etd): base(canvas, etd)
         {
         }
         private Point? startingPoint { get; set; }
@@ -46,9 +47,9 @@ namespace Nemo.Tools.Drawing
             
             var coords = GetRectCoords(point, startingPoint.Value);
 
-            await _canvas.ExecuteAction("drawRect", new object[5] {
-                coords.X, coords.Y, coords.Width, coords.Height, "red"
-            });
+            _elementTreeDocument
+                .AddElementTreeObject(new RectElementObject(coords.X, coords.Y, coords.Width, coords.Height, "red"));
+
             startingPoint = null;
             hasShadowRectDrawn = false;
         }

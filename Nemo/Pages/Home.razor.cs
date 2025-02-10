@@ -74,10 +74,13 @@ namespace Nemo.Pages {
             //await _jsRuntime.InvokeVoidAsync("downloadImage", canvas.FileName, canvas.ContentType);
             await Task.CompletedTask;
         }
+        public async Task Redraw() {
+            await canvas.Redraw();
+        }
 
         private void ClearCanvas()
         {
-            _jsRuntime.InvokeVoidAsync("clearCanvas", canvas.Width, canvas.Height);
+            Task.Run(() => _jsRuntime.InvokeVoidAsync("clearCanvas", canvas.Width, canvas.Height));
         }
     }
 }

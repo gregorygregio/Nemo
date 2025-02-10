@@ -29,19 +29,19 @@ namespace Nemo.Tools
                     CursorType = "cell";
                     break;
                 case "rect":
-                    selectedTool = new Rect(this);
+                    selectedTool = new Rect(this, elementTreeDocument);
                     CursorType = "cell";
                     break;
                 case "circle":
-                    selectedTool = new Circle(this);
+                    selectedTool = new Circle(this, elementTreeDocument);
                     CursorType = "cell";
                     break;
                 case "eraser":
-                    selectedTool = new Eraser(this);
+                    selectedTool = new Eraser(this, elementTreeDocument);
                     CursorType = "grabbing";
                     break;
                 case "crop":
-                    selectedTool = new Crop(this);
+                    selectedTool = new Crop(this, elementTreeDocument);
                     CursorType = "crosshair";
                     break;
                 default:
@@ -96,6 +96,10 @@ namespace Nemo.Tools
         public async Task ExecuteAction(string action, object?[]? args) {
             await _jsRuntime.InvokeVoidAsync(action, args);
         }
+        public record BatchCanvasAction(string action, object?[]? args);
+        public async Task ExecuteActionBatch(List<BatchCanvasAction> actions) {
+            await _jsRuntime.InvokeVoidAsync("executeBatchActions", actions);
+        }
 
         public async Task LoadImage(IBrowserFile file) {
             using var readStream = file.OpenReadStream(maxAllowedSize: maxAllowedSize);
@@ -124,21 +128,16 @@ namespace Nemo.Tools
             } while(bytesRead > 0);
 
             HasImageLoaded = true;
-            await SetImage(imageElement);
+            elementTreeDocument.AddElementTreeObject(imageElement);
         }
-
-        public async Task<Stream> GetImage() {
-            var imageStream = await _jsRuntime.InvokeAsync<IJSStreamReference>("getImageData");
-            using var stream = await imageStream.OpenReadStreamAsync();
-            return stream;
-        }
-
         public async Task SetImage(ImageElementObject imageElement) {
             HasImageLoaded = true;
             var strRef = new DotNetStreamReference(new MemoryStream(imageElement.ImageData));
             await _jsRuntime.InvokeVoidAsync("setSource", strRef, imageElement.ContentType);
-            elementTreeDocument.AddElementTreeObject(imageElement);
         }
 
+        public async Task Redraw() {
+            elementTreeDocument.Redraw();
+        }
     }
 }

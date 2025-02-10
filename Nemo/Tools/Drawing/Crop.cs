@@ -1,4 +1,5 @@
 using System.Drawing;
+using Nemo.Tools.ElementTreeObjects;
 
 namespace Nemo.Tools.Drawing
 {
@@ -7,7 +8,7 @@ namespace Nemo.Tools.Drawing
         public Rectangle CropArea { get; private set; }
         private Point? startingPoint { get; set; }
         private bool hasShadowRectDrawn { get; set; } = false;
-        public Crop(Canvas canvas) : base(canvas)
+        public Crop(Canvas canvas, ElementTreeDocument etd) : base(canvas, etd)
         {
         }
 

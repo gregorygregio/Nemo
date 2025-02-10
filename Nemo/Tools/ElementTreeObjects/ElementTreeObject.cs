@@ -9,7 +9,7 @@ namespace Nemo.Tools.ElementTreeObjects
         {
             IsRoot = isRoot;
         }
-        public ElementTreeObject? Child { get; set; }
+        public ElementTreeObject? Next { get; set; }
         public bool IsRoot { get; set; } = false;
         public bool Rendered { get; set; }
 

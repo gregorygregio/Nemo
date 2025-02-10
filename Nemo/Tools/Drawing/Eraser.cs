@@ -1,14 +1,14 @@
 
 
 using System.Drawing;
-using Nemo.Tools.CanvasCommands;
+using Nemo.Tools.ElementTreeObjects;
 
 namespace Nemo.Tools.Drawing
 {
     public class Eraser : BaseTool
     {
         private Point? _lastPoint;
-        public Eraser(Canvas canvas) : base(canvas)
+        public Eraser(Canvas canvas, ElementTreeDocument etd) : base(canvas, etd)
         {
         }
         public override Task OnElementClicked(string elementId)
@@ -36,7 +36,8 @@ namespace Nemo.Tools.Drawing
             // }
 
             _lastPoint = point;
-            await _canvas.ExecuteAction("clearRect", new object[] { point.X, point.Y, 5, 5 });
+            _elementTreeDocument
+                .AddElementTreeObject(new EraserElementObject(point.X, point.Y, 5, 5));
         }
         public override Task End(Point point)
         {

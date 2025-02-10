@@ -159,3 +159,12 @@ window.downloadImage = async (fileName, contentType) => {
 window.displayErrorMessage = async (message) => {
     alert(message);
 }
+
+window.executeBatchActions = async (actions) => {
+    for (let action of actions) {
+        console.log("executing action", action);
+        if(typeof(window[action.action]) == 'function') {
+            window[action.action](...action.args);
+        }
+    }
+}

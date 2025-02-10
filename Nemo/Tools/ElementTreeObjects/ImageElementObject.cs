@@ -1,3 +1,5 @@
+using Microsoft.JSInterop;
+
 namespace Nemo.Tools.ElementTreeObjects
 {
     public class ImageElementObject : ElementTreeObject
@@ -9,5 +11,19 @@ namespace Nemo.Tools.ElementTreeObjects
         public int Height { get; set; } = 600;
         public int ImageOffsetX { get; set; } = 0;
         public int ImageOffsetY { get; set; } = 0;
+        public override string GetElementAction() {
+            return "setSource";
+        }
+        public override object[] GetElementParams() {
+            if(ImageData == null) {
+                return new object[2] {
+                    new DotNetStreamReference(new MemoryStream(new byte[0])), ContentType
+                };
+            }
+            var strRef = new DotNetStreamReference(new MemoryStream(ImageData));
+            return new object[2] {
+                strRef, ContentType
+            };
+        }
     }
 }
