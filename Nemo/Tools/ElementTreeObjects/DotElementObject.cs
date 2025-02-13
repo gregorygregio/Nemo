@@ -1,6 +1,6 @@
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class DotElementObject: ElementTreeObject
+    public class DotElementObject: ElementTreeNode
     {
         public DotElementObject(int x, int y, string color)
         {

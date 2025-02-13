@@ -1,6 +1,6 @@
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class RectElementObject: ElementTreeObject
+    public class RectElementObject: ElementTreeNode
     {
         public RectElementObject(int x, int y, int width, int height, string color)
         {

@@ -1,6 +1,6 @@
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class EraserElementObject : ElementTreeObject
+    public class EraserElementObject : ElementTreeNode
     {
         public EraserElementObject(int x, int y, int width, int height)
         {

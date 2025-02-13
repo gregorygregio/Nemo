@@ -8,7 +8,7 @@ namespace Nemo.Tools.Drawing {
     {
         public bool startDraw { get; set; }
         public Point? previousPoint { get; set; }
-        public Pencil(Canvas canvas, ElementTreeDocument etd): base(canvas, etd)
+        public Pencil(Canvas canvas): base(canvas)
         {
         }
 
@@ -17,7 +17,7 @@ namespace Nemo.Tools.Drawing {
             startDraw = false;
             previousPoint = null;
             
-            _elementTreeDocument
+            _canvas
                 .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
         }
 
@@ -26,7 +26,7 @@ namespace Nemo.Tools.Drawing {
             previousPoint = point;
             startDraw = true;
 
-            _elementTreeDocument
+            _canvas
                 .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
         }
 
@@ -36,7 +36,7 @@ namespace Nemo.Tools.Drawing {
             }
 
             if(previousPoint != null) {
-                _elementTreeDocument
+                _canvas
                 .AddElementTreeObject(new LineElementObject(
                     previousPoint.Value.X,
                     previousPoint.Value.Y,

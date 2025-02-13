@@ -8,7 +8,7 @@ namespace Nemo.Tools.Drawing
         public Rectangle CropArea { get; private set; }
         private Point? startingPoint { get; set; }
         private bool hasShadowRectDrawn { get; set; } = false;
-        public Crop(Canvas canvas, ElementTreeDocument etd) : base(canvas, etd)
+        public Crop(Canvas canvas) : base(canvas)
         {
         }
 

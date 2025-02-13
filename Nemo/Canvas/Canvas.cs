@@ -1,47 +1,51 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using Nemo.Tools;
 using Nemo.Tools.Drawing;
 using Nemo.Tools.ElementTreeObjects;
 
-namespace Nemo.Tools
+namespace Nemo
 {
     public class Canvas {
         private IJSRuntime _jsRuntime { get; set; }
         private const long maxAllowedSize = 1024 * 1024 * 1024; //1GB
-        public int Width { get; set; } = 800;
-        public int Height { get; set; } = 600;
-        public bool HasImageLoaded { get; set; } = false;
-        public string FileName { get; set; }
+        public CanvasImage? Image { get; set; }
+        public int Width { get => Image != null ? Image.Width : 0; }
+        public int Height { get => Image != null ? Image.Height : 0; }
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            elementTreeDocument = new ElementTreeDocument(this);
+            rootElementTreeNode = new ElementTreeNode(true);
+            CurrentElement = rootElementTreeNode;
         }
         private ITool? selectedTool { get; set; }
         public string CursorType { get; set; } = "default";
-        private ElementTreeDocument elementTreeDocument { get; set; }
+        private ElementTreeNode rootElementTreeNode { get; set; }
+        public ElementTreeNode CurrentElement { get; set; }
+
+        #region Tool Actions
         public void SelectTool(string tool) {
             switch (tool.ToLower())
             {
                 case "pencil":
-                    selectedTool = new Pencil(this, elementTreeDocument);
+                    selectedTool = new Pencil(this);
                     CursorType = "cell";
                     break;
                 case "rect":
-                    selectedTool = new Rect(this, elementTreeDocument);
+                    selectedTool = new Rect(this);
                     CursorType = "cell";
                     break;
                 case "circle":
-                    selectedTool = new Circle(this, elementTreeDocument);
+                    selectedTool = new Circle(this);
                     CursorType = "cell";
                     break;
                 case "eraser":
-                    selectedTool = new Eraser(this, elementTreeDocument);
+                    selectedTool = new Eraser(this);
                     CursorType = "grabbing";
                     break;
                 case "crop":
-                    selectedTool = new Crop(this, elementTreeDocument);
+                    selectedTool = new Crop(this);
                     CursorType = "crosshair";
                     break;
                 default:
@@ -92,7 +96,9 @@ namespace Nemo.Tools
 
             await selectedTool.Cancel();
         }
+        #endregion
 
+        #region JsInterop Actions
         public async Task ExecuteAction(string action, object?[]? args) {
             await _jsRuntime.InvokeVoidAsync(action, args);
         }
@@ -100,7 +106,15 @@ namespace Nemo.Tools
         public async Task ExecuteActionBatch(List<BatchCanvasAction> actions) {
             await _jsRuntime.InvokeVoidAsync("executeBatchActions", actions);
         }
+        #endregion
 
+        public async Task OnImageRendered(int width, int height) {
+            Image.Width = width;
+            Image.Height = height;
+            if(!rootElementTreeNode.Rendered) {
+                await RenderElement(rootElementTreeNode);
+            }
+        }
         public async Task LoadImage(IBrowserFile file) {
             using var readStream = file.OpenReadStream(maxAllowedSize: maxAllowedSize);
             
@@ -111,33 +125,55 @@ namespace Nemo.Tools
                 return;
             }
 
-            var imageElement = new ImageElementObject();
-            FileName = imageElement.FileName = file.Name;
-            imageElement.ContentType = _contentType;
+            Image = new CanvasImage(file.Name, _contentType);
 
-            imageElement.ImageData = new byte[readStream.Length];
-            byte[] buffer = new byte[4096];
-            int bytesRead = 0;
-            long position = 0;
-            do {
-                bytesRead = await readStream.ReadAsync(buffer, 0, buffer.Length);
-                for(int i = 0; i < bytesRead; i++) {
-                    imageElement.ImageData[position] = buffer[i];
-                    position++;
-                }
-            } while(bytesRead > 0);
-
-            HasImageLoaded = true;
-            elementTreeDocument.AddElementTreeObject(imageElement);
+            await Image.LoadImage(readStream);
+            
+            await RenderImage(Image);
         }
-        public async Task SetImage(ImageElementObject imageElement) {
-            HasImageLoaded = true;
-            var strRef = new DotNetStreamReference(new MemoryStream(imageElement.ImageData));
-            await _jsRuntime.InvokeVoidAsync("setSource", strRef, imageElement.ContentType);
+        public async Task RenderImage(CanvasImage img) {
+            if(img.ImageData == null) {
+                return;
+            }
+            var strRef = new DotNetStreamReference(new MemoryStream(img.ImageData));
+            await _jsRuntime.InvokeVoidAsync("setSource", strRef, img.ContentType);
         }
 
         public async Task Redraw() {
-            elementTreeDocument.Redraw();
+            if(Image == null) {
+                return;
+            }
+            SetNodesRendered(rootElementTreeNode, false);
+            await ExecuteAction("clearCanvas", new object[] { Image.Width, Image.Height });
+            await RenderImage(Image);
+        }
+
+        public void SetNodesRendered(ElementTreeNode elm, bool render) {
+            elm.Rendered = render;
+            if(elm.Next != null) {
+                SetNodesRendered(elm.Next, render);
+            }
+        }
+
+        public void AddElementTreeObject(ElementTreeNode element) {
+            CurrentElement.Next = element;
+            CurrentElement = CurrentElement.Next;
+            Task.Run(() => RenderElement(element));
+        }
+
+        public async Task RenderElement(ElementTreeNode element) {
+            if(element.Rendered) {
+                return;
+            }
+
+            if(!string.IsNullOrEmpty(element.GetElementAction())) {
+                await ExecuteAction(element.GetElementAction(), element.GetElementParams());
+            }
+
+            element.Rendered = true;
+            if(element.Next != null) {
+                await RenderElement(element.Next);
+            }
         }
     }
 }

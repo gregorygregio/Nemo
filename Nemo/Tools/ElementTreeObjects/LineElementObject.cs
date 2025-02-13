@@ -1,6 +1,6 @@
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class LineElementObject : ElementTreeObject
+    public class LineElementObject : ElementTreeNode
     {
         public LineElementObject(int x1, int y1, int x2, int y2, string color)
         {

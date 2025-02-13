@@ -26,8 +26,6 @@ window.setSource = async (stream, contentType) => {
     img.src = url;
 
     img.onload = async () => {
-        console.log("Image loaded");
-        await GLOBAL.DotNetReference.invokeMethodAsync('SetImageSize', { width: img.width, height: img.height });
         canvas.setAttribute('width', img.width);
         canvas.setAttribute('height', img.height);
         const svg = document.querySelector("#svg");
@@ -35,6 +33,7 @@ window.setSource = async (stream, contentType) => {
         svg.setAttribute('height', img.height);
         console.log("drawing image", img);
         ctx.drawImage(img, 0, 0);
+        await GLOBAL.DotNetReference.invokeMethodAsync('OnImageRendered', { width: img.width, height: img.height });
     }
 
 };

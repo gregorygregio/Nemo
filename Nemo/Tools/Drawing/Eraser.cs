@@ -8,7 +8,7 @@ namespace Nemo.Tools.Drawing
     public class Eraser : BaseTool
     {
         private Point? _lastPoint;
-        public Eraser(Canvas canvas, ElementTreeDocument etd) : base(canvas, etd)
+        public Eraser(Canvas canvas) : base(canvas)
         {
         }
         public override Task OnElementClicked(string elementId)
@@ -36,7 +36,7 @@ namespace Nemo.Tools.Drawing
             // }
 
             _lastPoint = point;
-            _elementTreeDocument
+            _canvas
                 .AddElementTreeObject(new EraserElementObject(point.X, point.Y, 5, 5));
         }
         public override Task End(Point point)

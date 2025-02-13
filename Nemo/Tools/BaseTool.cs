@@ -6,11 +6,9 @@ namespace Nemo.Tools
     public class BaseTool : ITool
     {
         protected readonly Canvas _canvas;
-        protected ElementTreeDocument _elementTreeDocument { get; set; }
-        public BaseTool(Canvas canvas, ElementTreeDocument etd)
+        public BaseTool(Canvas canvas)
         {
             _canvas = canvas;
-            _elementTreeDocument = etd;
         }
         public virtual Task Start(Point point) => Task.CompletedTask;
         public virtual Task End(Point point) => Task.CompletedTask;

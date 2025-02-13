@@ -2,14 +2,14 @@
 
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class ElementTreeObject
+    public class ElementTreeNode
     {
-        public ElementTreeObject() {}
-        public ElementTreeObject(bool isRoot)
+        public ElementTreeNode() {}
+        public ElementTreeNode(bool isRoot)
         {
             IsRoot = isRoot;
         }
-        public ElementTreeObject? Next { get; set; }
+        public ElementTreeNode? Next { get; set; }
         public bool IsRoot { get; set; } = false;
         public bool Rendered { get; set; }
 

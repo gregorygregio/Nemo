@@ -9,8 +9,15 @@ namespace Nemo.Pages {
     public partial class Home {
         [Inject]
         private IJSRuntime _jsRuntime { get; set; }
-        private Canvas canvas { get; set;}
-        public bool HasImageLoaded { get => canvas.HasImageLoaded; }
+        private Canvas? canvas { get; set;}
+        public bool HasImageLoaded { get => canvas != null && canvas.Image != null && canvas.Image.IsLoaded; }
+        private string _fileName = string.Empty;
+        public string FileName { get => _fileName; set {
+            _fileName = value;
+            if(canvas != null && canvas.Image != null) {
+                canvas.Image.FileName = value;
+            }
+        }}
         public string MouseCursor { get {
             return canvas?.CursorType != null ? canvas.CursorType : "default";
         } set {} }
@@ -25,24 +32,28 @@ namespace Nemo.Pages {
         [JSInvokable]
         public async Task ElementClicked(string elementId) 
         {
+            if(canvas == null) {
+                return;
+            }
             await canvas.ElementClicked(elementId);
         }
 
         [JSInvokable]
-        public void SetImageSize(ImageSize imageSize) {
-            Console.WriteLine("SetImageSize");
-            Console.WriteLine(imageSize.width);
-            Console.WriteLine(imageSize.height);
-            Console.WriteLine(imageSize);
-
-            canvas.Width = imageSize.width;
-            canvas.Height = imageSize.height;
+        public void OnImageRendered(ImageSize imageSize) {
+            if(canvas == null) {
+                return;
+            }
+            Task.Run(() => canvas.OnImageRendered(imageSize.width, imageSize.height));
         }
 
         public record ImageSize(int width, int height);
 
         public async void LoadImage(InputFileChangeEventArgs e) {
+            if(canvas == null) {
+                return;
+            }
             await canvas.LoadImage(e.File);
+            _fileName = canvas.Image != null ? canvas.Image.FileName : string.Empty;
             base.StateHasChanged();
         }
 

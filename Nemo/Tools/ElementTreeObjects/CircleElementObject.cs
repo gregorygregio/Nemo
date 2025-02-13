@@ -1,6 +1,6 @@
 namespace Nemo.Tools.ElementTreeObjects
 {
-    public class CircleElementObject : ElementTreeObject
+    public class CircleElementObject : ElementTreeNode
     {
         public CircleElementObject(int x, int y, int radius, string color)
         {
