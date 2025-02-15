@@ -18,7 +18,7 @@ namespace Nemo.Tools.ElementTreeNodes
         {
             return "drawCircle";
         }
-        public override object[] GetElementParams()
+        public override object[] GetElementParams(int offsetX, int offsetY)
         {
             return new object[4] {
                 X + offsetX, Y + offsetY, Radius, Color

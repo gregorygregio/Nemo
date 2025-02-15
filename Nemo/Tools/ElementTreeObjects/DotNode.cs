@@ -15,7 +15,7 @@ namespace Nemo.Tools.ElementTreeNodes
         public override string GetElementAction() {
             return "drawDot";
         }
-        public override object[] GetElementParams() {
+        public override object[] GetElementParams(int offsetX, int offsetY) {
             return new object[3] {
                 X + offsetX, Y + offsetY, Color
             };

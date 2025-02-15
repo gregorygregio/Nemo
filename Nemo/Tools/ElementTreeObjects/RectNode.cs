@@ -19,7 +19,7 @@ namespace Nemo.Tools.ElementTreeNodes
         public override string GetElementAction() {
             return "drawRect";
         }
-        public override object[] GetElementParams() {
+        public override object[] GetElementParams(int offsetX, int offsetY) {
             return new object[5] {
                 X + offsetX, Y + offsetY, Width, Height, Color
             };

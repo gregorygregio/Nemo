@@ -10,7 +10,7 @@ namespace Nemo.Tools.ElementTreeNodes
         public override string GetElementAction() {
             return "setSource";
         }
-        public override object[] GetElementParams() {
+        public override object[] GetElementParams(int offsetX, int offsetY) {
             if(ImageData == null) {
                 return new object[2] {
                     new DotNetStreamReference(new MemoryStream(new byte[0])), ContentType

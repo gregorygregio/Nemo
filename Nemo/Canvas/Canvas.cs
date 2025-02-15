@@ -11,17 +11,17 @@ namespace Nemo
         private IJSRuntime _jsRuntime { get; set; }
         private const long maxAllowedSize = 1024 * 1024 * 1024; //1GB
         public CanvasImage? Image { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get => rootFrameNode.Width; }
+        public int Height { get => rootFrameNode.Height; }
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            rootElementTreeNode = new ElementTreeNode(true);
-            CurrentElement = rootElementTreeNode;
+            rootFrameNode = new FrameNode();
+            CurrentElement = rootFrameNode;
         }
         private ITool? selectedTool { get; set; }
         public string CursorType { get; set; } = "default";
-        private ElementTreeNode rootElementTreeNode { get; set; }
+        private FrameNode rootFrameNode { get; set; }
         public ElementTreeNode CurrentElement { get; set; }
 
         #region Tool Actions
@@ -108,23 +108,23 @@ namespace Nemo
         }
         #endregion
 
-        public async Task ResizeCanvas(int width, int height) {
-            Width = width;
-            Height = height;
-            await ExecuteAction("resizeCanvas", new object[] { width, height });
-        }
+        // public async Task ResizeCanvas(int width, int height) {
+        //     Width = width;
+        //     Height = height;
+        //     await ExecuteAction("resizeCanvas", new object[] { width, height });
+        // }
         public async Task OnImageRendered(int width, int height) {
             Image.Width = width;
             Image.Height = height;
-            if(this.Width == 0) {
-                this.Width = width;
+            if(rootFrameNode.Width == 0) {
+                rootFrameNode.Width = width;
             }
-            if(this.Height == 0) {
-                this.Height = height;
+            if(rootFrameNode.Height == 0) {
+                rootFrameNode.Height = height;
             }
             
-            if(!rootElementTreeNode.Rendered) {
-                await RenderElement(rootElementTreeNode);
+            if(!rootFrameNode.Rendered) {
+                await RenderElement(rootFrameNode, rootFrameNode.OffsetX, rootFrameNode.OffsetY);
             }
         }
         public async Task LoadImage(IBrowserFile file) {
@@ -148,7 +148,7 @@ namespace Nemo
                 return;
             }
             var strRef = new DotNetStreamReference(new MemoryStream(img.ImageData));
-            await _jsRuntime.InvokeVoidAsync("setSource", strRef, img.ContentType, img.OffsetX, img.OffsetY, Width, Height);
+            await _jsRuntime.InvokeVoidAsync("setSource", strRef, img.ContentType, img.OffsetX, img.OffsetY, rootFrameNode.Width, rootFrameNode.Height);
         }
 
         public async Task Redraw(int offsetX, int offsetY, int width, int height) {
@@ -161,10 +161,12 @@ namespace Nemo
 
             Image.OffsetX -= offsetX;
             Image.OffsetY -= offsetY;
-            Width = width;
-            Height = height;
+            rootFrameNode.OffsetX = Image.OffsetX;
+            rootFrameNode.OffsetY = Image.OffsetY;
+            rootFrameNode.Width = width;
+            rootFrameNode.Height = height;
 
-            SetNodesRendered(rootElementTreeNode, false);
+            SetNodesRendered(rootFrameNode, false);
             await ExecuteAction("clearCanvas", new object[] { currentWidth, currentHeight });
             await RenderImage(Image);
         }
@@ -182,19 +184,18 @@ namespace Nemo
             Task.Run(() => RenderElement(element));
         }
 
-        public async Task RenderElement(ElementTreeNode element) {
+        public async Task RenderElement(ElementTreeNode element, int offsetX = 0, int offsetY = 0) {
             if(element.Rendered) {
                 return;
             }
 
             if(!string.IsNullOrEmpty(element.GetElementAction())) {
-                element.ApplyOffset(Image.OffsetX, Image.OffsetY);
-                await ExecuteAction(element.GetElementAction(), element.GetElementParams());
+                await ExecuteAction(element.GetElementAction(), element.GetElementParams(offsetX, offsetY));
             }
 
             element.Rendered = true;
             if(element.Next != null) {
-                await RenderElement(element.Next);
+                await RenderElement(element.Next, offsetX, offsetY);
             }
         }
     }

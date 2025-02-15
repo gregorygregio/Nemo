@@ -16,9 +16,9 @@ namespace Nemo.Tools.ElementTreeNodes
 
         public override string GetElementAction()
         {
-            return "clearReact";
+            return "clearRect";
         }
-        public override object[] GetElementParams()
+        public override object[] GetElementParams(int offsetX, int offsetY)
         {
             return new object[4] {
                 X + offsetX, Y + offsetY, Width, Height
