@@ -7,7 +7,7 @@ GLOBAL.SetDotnetReference = function (pDotNetReference) {
 const CANVAS_ID = '#canvas';
 
 
-window.setSource = async (stream, contentType) => {
+window.setSource = async (stream, contentType, offsetX=0, offsetY=0, width=0, height=0) => {
     console.log("setSource", stream, contentType);
     const arrayBuffer = await stream.arrayBuffer();
     console.log("arrayBuffer", arrayBuffer);
@@ -26,16 +26,31 @@ window.setSource = async (stream, contentType) => {
     img.src = url;
 
     img.onload = async () => {
-        canvas.setAttribute('width', img.width);
-        canvas.setAttribute('height', img.height);
+        if (width == 0) {
+            width = img.width + offsetX;
+        }
+        if(height == 0) {
+            height = img.height + offsetY;
+        }
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
         const svg = document.querySelector("#svg");
-        svg.setAttribute('width', img.width);
-        svg.setAttribute('height', img.height);
-        console.log("drawing image", img);
-        ctx.drawImage(img, 0, 0);
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        ctx.drawImage(img , offsetX, offsetY, img.width, img.height);
         await GLOBAL.DotNetReference.invokeMethodAsync('OnImageRendered', { width: img.width, height: img.height });
     }
 
+};
+
+window.resizeCanvas = async (width, height) => {
+    const canvas = document.querySelector(CANVAS_ID);
+    canvas.setAttribute('width', width);
+    canvas.setAttribute('height', height);
+
+    const svg = document.querySelector("#svg");
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
 };
 
 

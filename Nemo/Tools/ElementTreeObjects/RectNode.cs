@@ -1,8 +1,8 @@
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class RectElementObject: ElementTreeNode
+    public class RectNode: ElementTreeNode
     {
-        public RectElementObject(int x, int y, int width, int height, string color)
+        public RectNode(int x, int y, int width, int height, string color)
         {
             X = x;
             Y = y;
@@ -21,7 +21,7 @@ namespace Nemo.Tools.ElementTreeObjects
         }
         public override object[] GetElementParams() {
             return new object[5] {
-                X, Y, Width, Height, Color
+                X + offsetX, Y + offsetY, Width, Height, Color
             };
         }
     }

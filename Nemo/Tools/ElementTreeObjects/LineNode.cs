@@ -1,8 +1,8 @@
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class LineElementObject : ElementTreeNode
+    public class LineNode : ElementTreeNode
     {
-        public LineElementObject(int x1, int y1, int x2, int y2, string color)
+        public LineNode(int x1, int y1, int x2, int y2, string color)
         {
             X1 = x1;
             Y1 = y1;
@@ -23,7 +23,7 @@ namespace Nemo.Tools.ElementTreeObjects
         public override object[] GetElementParams()
         {
             return new object[5] {
-                X1, Y1, X2, Y2, Color
+                X1 + offsetX, Y1 + offsetY, X2 + offsetX, Y2 + offsetY, Color
             };
         }
     }

@@ -1,8 +1,8 @@
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class DotElementObject: ElementTreeNode
+    public class DotNode: ElementTreeNode
     {
-        public DotElementObject(int x, int y, string color)
+        public DotNode(int x, int y, string color)
         {
             X = x;
             Y = y;
@@ -17,7 +17,7 @@ namespace Nemo.Tools.ElementTreeObjects
         }
         public override object[] GetElementParams() {
             return new object[3] {
-                X, Y, Color
+                X + offsetX, Y + offsetY, Color
             };
         }
     }

@@ -1,5 +1,4 @@
 using System.Drawing;
-using Nemo.Tools.ElementTreeObjects;
 
 namespace Nemo.Tools.Drawing
 {
@@ -13,7 +12,7 @@ namespace Nemo.Tools.Drawing
         }
 
 
-        private RectCoords GetRectCoords(Point a, Point b) {
+        private RectShape GetRectShape(Point a, Point b) {
             int minX, maxX, minY, maxY;
             if(a.X > b.X) {
                 maxX = a.X;
@@ -35,7 +34,7 @@ namespace Nemo.Tools.Drawing
                 maxY = b.Y;
             }
     
-            return new RectCoords(minX, minY, maxX - minX, maxY - minY);
+            return new RectShape(minX, minY, maxX - minX, maxY - minY);
         }
 
         private void CreateRectangle(int x, int y, int width, int height)
@@ -54,8 +53,8 @@ namespace Nemo.Tools.Drawing
                 await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowCrop" });
             }
             
-            var coords = GetRectCoords(point, startingPoint.Value);
-            
+            var shape = GetRectShape(point, startingPoint.Value);
+            await _canvas.Redraw(shape.X, shape.Y, shape.Width, shape.Height);
         }
 
         public override async Task OnMove(Point point)
@@ -68,7 +67,7 @@ namespace Nemo.Tools.Drawing
                 await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowCrop" });
             }
 
-            var coords = GetRectCoords(point, startingPoint.Value);
+            var coords = GetRectShape(point, startingPoint.Value);
             
             await _canvas.ExecuteAction("addSvgElement", new object[] {
                 "rect", "shadowCrop",

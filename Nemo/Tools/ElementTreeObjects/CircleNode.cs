@@ -1,8 +1,8 @@
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class CircleElementObject : ElementTreeNode
+    public class CircleNode : ElementTreeNode
     {
-        public CircleElementObject(int x, int y, int radius, string color)
+        public CircleNode(int x, int y, int radius, string color)
         {
             X = x;
             Y = y;
@@ -21,7 +21,7 @@ namespace Nemo.Tools.ElementTreeObjects
         public override object[] GetElementParams()
         {
             return new object[4] {
-                X, Y, Radius, Color
+                X + offsetX, Y + offsetY, Radius, Color
             };
         }
     }

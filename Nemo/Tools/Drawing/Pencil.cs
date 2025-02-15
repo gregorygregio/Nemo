@@ -1,7 +1,7 @@
 
 
 using System.Drawing;
-using Nemo.Tools.ElementTreeObjects;
+using Nemo.Tools.ElementTreeNodes;
 
 namespace Nemo.Tools.Drawing {
     public class Pencil : BaseTool
@@ -18,7 +18,7 @@ namespace Nemo.Tools.Drawing {
             previousPoint = null;
             
             _canvas
-                .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
+                .AddElementTreeObject(new DotNode(point.X, point.Y, "red"));
         }
 
         public override async Task Start(Point point)
@@ -27,7 +27,7 @@ namespace Nemo.Tools.Drawing {
             startDraw = true;
 
             _canvas
-                .AddElementTreeObject(new DotElementObject(point.X, point.Y, "red"));
+                .AddElementTreeObject(new DotNode(point.X, point.Y, "red"));
         }
 
         public override async Task OnMove(Point point) {
@@ -37,7 +37,7 @@ namespace Nemo.Tools.Drawing {
 
             if(previousPoint != null) {
                 _canvas
-                .AddElementTreeObject(new LineElementObject(
+                .AddElementTreeObject(new LineNode(
                     previousPoint.Value.X,
                     previousPoint.Value.Y,
                     point.X,

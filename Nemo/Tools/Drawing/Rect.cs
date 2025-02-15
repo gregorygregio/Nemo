@@ -1,9 +1,9 @@
 using System.Drawing;
-using Nemo.Tools.ElementTreeObjects;
+using Nemo.Tools.ElementTreeNodes;
 
 namespace Nemo.Tools.Drawing
 {
-    internal record RectCoords(int X, int Y, int Width, int Height) {}
+    internal record RectShape(int X, int Y, int Width, int Height) {}
     public class Rect : BaseTool
     {
         public Rect(Canvas canvas): base(canvas)
@@ -11,7 +11,7 @@ namespace Nemo.Tools.Drawing
         }
         private Point? startingPoint { get; set; }
         private bool hasShadowRectDrawn { get; set; } = false;
-        private RectCoords GetRectCoords(Point a, Point b) {
+        private RectShape GetRectShape(Point a, Point b) {
             int minX, maxX, minY, maxY;
             if(a.X > b.X) {
                 maxX = a.X;
@@ -33,7 +33,7 @@ namespace Nemo.Tools.Drawing
                 maxY = b.Y;
             }
     
-            return new RectCoords(minX, minY, maxX - minX, maxY - minY);
+            return new RectShape(minX, minY, maxX - minX, maxY - minY);
         }
         public override async Task End(Point point)
         {
@@ -45,10 +45,10 @@ namespace Nemo.Tools.Drawing
                 await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowRect1" });
             }
             
-            var coords = GetRectCoords(point, startingPoint.Value);
+            var coords = GetRectShape(point, startingPoint.Value);
 
             _canvas
-                .AddElementTreeObject(new RectElementObject(coords.X, coords.Y, coords.Width, coords.Height, "red"));
+                .AddElementTreeObject(new RectNode(coords.X, coords.Y, coords.Width, coords.Height, "red"));
 
             startingPoint = null;
             hasShadowRectDrawn = false;
@@ -64,7 +64,7 @@ namespace Nemo.Tools.Drawing
                 await _canvas.ExecuteAction("removeSvgElement", new object[] { "shadowRect1" });
             }
 
-            var coords = GetRectCoords(point, startingPoint.Value);
+            var coords = GetRectShape(point, startingPoint.Value);
             
             await _canvas.ExecuteAction("addSvgElement", new object[] {
                 "rect", "shadowRect1",

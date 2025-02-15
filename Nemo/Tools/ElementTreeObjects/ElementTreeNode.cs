@@ -1,6 +1,6 @@
 
 
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
     public class ElementTreeNode
     {
@@ -18,6 +18,12 @@ namespace Nemo.Tools.ElementTreeObjects
         }
         public virtual object[] GetElementParams() {
             return new object[0];
+        }
+        protected int offsetX = 0;
+        protected int offsetY = 0;
+        public void ApplyOffset(int offsetX, int offsetY) {
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
         }
     }
 }

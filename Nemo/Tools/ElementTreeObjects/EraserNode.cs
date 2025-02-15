@@ -1,8 +1,8 @@
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class EraserElementObject : ElementTreeNode
+    public class EraserNode : ElementTreeNode
     {
-        public EraserElementObject(int x, int y, int width, int height)
+        public EraserNode(int x, int y, int width, int height)
         {
             X = x;
             Y = y;
@@ -21,7 +21,7 @@ namespace Nemo.Tools.ElementTreeObjects
         public override object[] GetElementParams()
         {
             return new object[4] {
-                X, Y, Width, Height
+                X + offsetX, Y + offsetY, Width, Height
             };
         }
     }

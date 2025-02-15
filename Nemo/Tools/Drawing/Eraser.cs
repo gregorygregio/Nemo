@@ -1,7 +1,7 @@
 
 
 using System.Drawing;
-using Nemo.Tools.ElementTreeObjects;
+using Nemo.Tools.ElementTreeNodes;
 
 namespace Nemo.Tools.Drawing
 {
@@ -37,7 +37,7 @@ namespace Nemo.Tools.Drawing
 
             _lastPoint = point;
             _canvas
-                .AddElementTreeObject(new EraserElementObject(point.X, point.Y, 5, 5));
+                .AddElementTreeObject(new EraserNode(point.X, point.Y, 5, 5));
         }
         public override Task End(Point point)
         {

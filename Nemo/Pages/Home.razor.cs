@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using Nemo.Tools;
 
 namespace Nemo.Pages {
     public partial class Home {
@@ -84,9 +83,6 @@ namespace Nemo.Pages {
         public async Task Export() {
             //await _jsRuntime.InvokeVoidAsync("downloadImage", canvas.FileName, canvas.ContentType);
             await Task.CompletedTask;
-        }
-        public async Task Redraw() {
-            await canvas.Redraw();
         }
 
         private void ClearCanvas()

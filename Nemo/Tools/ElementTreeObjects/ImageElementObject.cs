@@ -1,8 +1,8 @@
 using Microsoft.JSInterop;
 
-namespace Nemo.Tools.ElementTreeObjects
+namespace Nemo.Tools.ElementTreeNodes
 {
-    public class ImageElementObject : ElementTreeNode
+    public class ImageNode : ElementTreeNode
     {
         public string ContentType { get; set; }
         public string FileName { get; set; }

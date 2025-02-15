@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Nemo.Tools;
 using Nemo.Tools.Drawing;
-using Nemo.Tools.ElementTreeObjects;
+using Nemo.Tools.ElementTreeNodes;
 
 namespace Nemo
 {
@@ -11,8 +11,8 @@ namespace Nemo
         private IJSRuntime _jsRuntime { get; set; }
         private const long maxAllowedSize = 1024 * 1024 * 1024; //1GB
         public CanvasImage? Image { get; set; }
-        public int Width { get => Image != null ? Image.Width : 0; }
-        public int Height { get => Image != null ? Image.Height : 0; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public Canvas(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
@@ -108,9 +108,21 @@ namespace Nemo
         }
         #endregion
 
+        public async Task ResizeCanvas(int width, int height) {
+            Width = width;
+            Height = height;
+            await ExecuteAction("resizeCanvas", new object[] { width, height });
+        }
         public async Task OnImageRendered(int width, int height) {
             Image.Width = width;
             Image.Height = height;
+            if(this.Width == 0) {
+                this.Width = width;
+            }
+            if(this.Height == 0) {
+                this.Height = height;
+            }
+            
             if(!rootElementTreeNode.Rendered) {
                 await RenderElement(rootElementTreeNode);
             }
@@ -136,15 +148,24 @@ namespace Nemo
                 return;
             }
             var strRef = new DotNetStreamReference(new MemoryStream(img.ImageData));
-            await _jsRuntime.InvokeVoidAsync("setSource", strRef, img.ContentType);
+            await _jsRuntime.InvokeVoidAsync("setSource", strRef, img.ContentType, img.OffsetX, img.OffsetY, Width, Height);
         }
 
-        public async Task Redraw() {
+        public async Task Redraw(int offsetX, int offsetY, int width, int height) {
             if(Image == null) {
                 return;
             }
+
+            var currentWidth = Width;
+            var currentHeight = Height;
+
+            Image.OffsetX -= offsetX;
+            Image.OffsetY -= offsetY;
+            Width = width;
+            Height = height;
+
             SetNodesRendered(rootElementTreeNode, false);
-            await ExecuteAction("clearCanvas", new object[] { Image.Width, Image.Height });
+            await ExecuteAction("clearCanvas", new object[] { currentWidth, currentHeight });
             await RenderImage(Image);
         }
 
@@ -167,6 +188,7 @@ namespace Nemo
             }
 
             if(!string.IsNullOrEmpty(element.GetElementAction())) {
+                element.ApplyOffset(Image.OffsetX, Image.OffsetY);
                 await ExecuteAction(element.GetElementAction(), element.GetElementParams());
             }
 
