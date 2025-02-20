@@ -35,7 +35,7 @@ namespace Nemo.Tools.Drawing {
                 return;
             }
 
-            if(previousPoint != null) {
+            if(previousPoint != null && !(previousPoint.Value.X == point.X && previousPoint.Value.Y == point.Y)) {
                 _canvas
                 .AddElementTreeObject(new LineNode(
                     previousPoint.Value.X,

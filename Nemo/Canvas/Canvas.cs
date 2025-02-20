@@ -124,7 +124,7 @@ namespace Nemo
             }
             
             if(!rootFrameNode.Rendered) {
-                await RenderElement(rootFrameNode, rootFrameNode.OffsetX, rootFrameNode.OffsetY);
+                await RenderBatchOfElements(rootFrameNode, rootFrameNode.OffsetX, rootFrameNode.OffsetY);
             }
         }
         public async Task LoadImage(IBrowserFile file) {
@@ -137,6 +137,8 @@ namespace Nemo
                 return;
             }
 
+            rootFrameNode.Width = 0;
+            rootFrameNode.Height = 0;
             Image = new CanvasImage(file.Name, _contentType);
 
             await Image.LoadImage(readStream);
@@ -172,31 +174,40 @@ namespace Nemo
         }
 
         public void SetNodesRendered(ElementTreeNode elm, bool render) {
-            elm.Rendered = render;
-            if(elm.Next != null) {
-                SetNodesRendered(elm.Next, render);
+            foreach(var node in elm.GetNodes()) {
+                node.Rendered = render;
             }
         }
 
         public void AddElementTreeObject(ElementTreeNode element) {
             CurrentElement.Next = element;
-            CurrentElement = CurrentElement.Next;
-            Task.Run(() => RenderElement(element));
+            while(CurrentElement.Next != null) {
+                CurrentElement = CurrentElement.Next;
+            }
+            Task.Run(() => RenderBatchOfElements(element));
         }
 
-        public async Task RenderElement(ElementTreeNode element, int offsetX = 0, int offsetY = 0) {
-            if(element.Rendered) {
-                return;
+        public async Task RenderBatchOfElements(ElementTreeNode? elm, int offsetX=0, int offsetY=0) {
+            
+            foreach(var actions in GetBatchesOfCanvasActions(elm, offsetX, offsetY)) {
+                Console.WriteLine("Sending batch of actions");
+                await ExecuteActionBatch(actions);
             }
-
-            if(!string.IsNullOrEmpty(element.GetElementAction())) {
-                await ExecuteAction(element.GetElementAction(), element.GetElementParams(offsetX, offsetY));
+        }
+        private IEnumerable<List<BatchCanvasAction>> GetBatchesOfCanvasActions(ElementTreeNode? elm, int offsetX=0, int offsetY=0)
+        {
+            var actions = new List<BatchCanvasAction>();
+            int actionsCount = 0;
+            foreach(var node in elm?.GetNodes()) {
+                actions.Add(new BatchCanvasAction(node.GetElementAction(), node.GetElementParams(offsetX, offsetY)));
+                actionsCount++;
+                if(actionsCount >= 1000) {
+                    yield return actions;
+                    actions = new List<BatchCanvasAction>();
+                    actionsCount = 0;
+                }
             }
-
-            element.Rendered = true;
-            if(element.Next != null) {
-                await RenderElement(element.Next, offsetX, offsetY);
-            }
+            yield return actions;
         }
     }
 }

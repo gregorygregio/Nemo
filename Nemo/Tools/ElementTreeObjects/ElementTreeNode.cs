@@ -14,5 +14,14 @@ namespace Nemo.Tools.ElementTreeNodes
         public virtual object[] GetElementParams(int offsetX, int offsetY) {
             return new object[0];
         }
+
+        public IEnumerable<ElementTreeNode> GetNodes() 
+        {
+            ElementTreeNode? current = this;
+            while(current != null) {
+                yield return current;
+                current = current.Next;
+            }
+        }
     }
 }
