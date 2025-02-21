@@ -24,5 +24,9 @@ namespace Nemo.Tools.ElementTreeNodes
                 X + offsetX, Y + offsetY, Width, Height
             };
         }
+        public override ElementTreeNode Clone()
+        {
+            return new EraserNode(X, Y, Width, Height);
+        }
     }
 }

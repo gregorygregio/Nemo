@@ -2,7 +2,7 @@
 
 namespace Nemo.Tools.ElementTreeNodes
 {
-    public class ElementTreeNode
+    public abstract class ElementTreeNode
     {
         public ElementTreeNode() {}
         public ElementTreeNode? Next { get; set; }
@@ -14,6 +14,8 @@ namespace Nemo.Tools.ElementTreeNodes
         public virtual object[] GetElementParams(int offsetX, int offsetY) {
             return new object[0];
         }
+
+        public abstract ElementTreeNode Clone();
 
         public IEnumerable<ElementTreeNode> GetNodes() 
         {

@@ -24,5 +24,9 @@ namespace Nemo.Tools.ElementTreeNodes
                 X + offsetX, Y + offsetY, Radius, Color
             };
         }
+        public override ElementTreeNode Clone()
+        {
+            return new CircleNode(X, Y, Radius, Color);
+        }
     }
 }

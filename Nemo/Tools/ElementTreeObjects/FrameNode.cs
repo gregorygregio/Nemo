@@ -23,9 +23,21 @@ namespace Nemo.Tools.ElementTreeNodes
             Width = width;
             Height = height;
         }
+        public FrameNode(FrameNode frame)
+        {
+            OffsetX = frame.OffsetX;
+            OffsetY = frame.OffsetY;
+            Width = frame.Width;
+            Height = frame.Height;
+        }
         public int OffsetX { get; set; }
         public int OffsetY { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+
+        public override ElementTreeNode Clone()
+        {
+            return new FrameNode(OffsetX, OffsetY, Width, Height);
+        }
     }
 }

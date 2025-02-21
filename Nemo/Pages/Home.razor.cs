@@ -89,5 +89,9 @@ namespace Nemo.Pages {
         {
             Task.Run(() => _jsRuntime.InvokeVoidAsync("clearCanvas", canvas.Width, canvas.Height));
         }
+
+        public void Undo() {
+            canvas.Undo();
+        }
     }
 }

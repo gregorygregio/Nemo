@@ -26,5 +26,9 @@ namespace Nemo.Tools.ElementTreeNodes
                 X1 + offsetX, Y1 + offsetY, X2 + offsetX, Y2 + offsetY, Color
             };
         }
+        public override ElementTreeNode Clone()
+        {
+            return new LineNode(X1, Y1, X2, Y2, Color);
+        }
     }
 }

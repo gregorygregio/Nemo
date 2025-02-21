@@ -21,5 +21,9 @@ namespace Nemo.Tools.ElementTreeNodes
                 strRef, ContentType
             };
         }
+        public override ElementTreeNode Clone()
+        {
+            return new ImageNode();
+        }
     }
 }

@@ -20,5 +20,8 @@ namespace Nemo.Tools.ElementTreeNodes
                 X + offsetX, Y + offsetY, Color
             };
         }
+        public override ElementTreeNode Clone() {
+            return new DotNode(X, Y, Color);
+        }
     }
 }

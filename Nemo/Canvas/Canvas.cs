@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using Nemo.Memento;
 using Nemo.Tools;
 using Nemo.Tools.Drawing;
 using Nemo.Tools.ElementTreeNodes;
@@ -142,7 +143,7 @@ namespace Nemo
             Image = new CanvasImage(file.Name, _contentType);
 
             await Image.LoadImage(readStream);
-            
+            MakeSnapshot();
             await RenderImage(Image);
         }
         public async Task RenderImage(CanvasImage img) {
@@ -184,6 +185,7 @@ namespace Nemo
             while(CurrentElement.Next != null) {
                 CurrentElement = CurrentElement.Next;
             }
+            MakeSnapshot();
             Task.Run(() => RenderBatchOfElements(element));
         }
 
@@ -208,6 +210,29 @@ namespace Nemo
                 }
             }
             yield return actions;
+        }
+
+        private Stack<CanvasSnapshot> snapshots = new Stack<CanvasSnapshot>();
+        private void MakeSnapshot()
+        {
+            var snapshot = new CanvasSnapshot(rootFrameNode);
+            snapshots.Push(snapshot);
+        }
+
+        public async Task Undo()
+        {
+            if(snapshots.Count == 0) {
+                return;
+            }
+            var snapshot = snapshots.Pop();
+            var currentWidth = Width;
+            var currentHeight = Height;
+            
+            rootFrameNode = snapshot.RootFrameNode;
+            CurrentElement = rootFrameNode;
+            SetNodesRendered(rootFrameNode, false);
+            await ExecuteAction("clearCanvas", new object[] { currentWidth, currentHeight });
+            await RenderImage(Image);
         }
     }
 }
