@@ -8,16 +8,16 @@ const CANVAS_ID = '#canvas';
 
 
 window.setSource = async (stream, contentType, offsetX=0, offsetY=0, width=0, height=0) => {
-    console.log("setSource", stream, contentType);
+  //  console.log("setSource", stream, contentType);
     const arrayBuffer = await stream.arrayBuffer();
-    console.log("arrayBuffer", arrayBuffer);
+//    console.log("arrayBuffer", arrayBuffer);
     let blobOptions = {};
     if (contentType) {
         blobOptions['type'] = contentType;
     }
     const blob = new Blob([arrayBuffer], blobOptions);
     const url = URL.createObjectURL(blob);
-    console.log("url", url);
+    //console.log("url", url);
 
     const canvas = document.querySelector(CANVAS_ID);
     const ctx = canvas.getContext('2d');
@@ -176,7 +176,6 @@ window.displayErrorMessage = async (message) => {
 
 window.executeBatchActions = async (actions) => {
     for (let action of actions) {
-        console.log("executing action", action);
         if(typeof(window[action.action]) == 'function') {
             window[action.action](...action.args);
         }

@@ -25,5 +25,10 @@ namespace Nemo.Tools.ElementTreeNodes
                 current = current.Next;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("\n  {0}({1}){2}", GetElementAction(), GetElementParams(0, 0).Select(x => x.ToString()).Aggregate((a, b) => a + ", " + b), Next?.ToString());
+        }
     }
 }

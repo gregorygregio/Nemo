@@ -19,5 +19,9 @@ namespace Nemo.Memento
                 current = current.Next;
             }
         }
+        public override string ToString() 
+        {
+            return string.Format("Snapshot > RootFrameNode: Width {0} Height {1} OffsetX {2} OffsetY {3}{4}", RootFrameNode.Width, RootFrameNode.Height, RootFrameNode.OffsetX, RootFrameNode.OffsetY, RootFrameNode.Next?.ToString());
+        }
     }
 }

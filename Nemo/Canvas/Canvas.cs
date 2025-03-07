@@ -169,6 +169,7 @@ namespace Nemo
             rootFrameNode.Width = width;
             rootFrameNode.Height = height;
 
+            MakeSnapshot();
             SetNodesRendered(rootFrameNode, false);
             await ExecuteAction("clearCanvas", new object[] { currentWidth, currentHeight });
             await RenderImage(Image);
@@ -192,7 +193,7 @@ namespace Nemo
         public async Task RenderBatchOfElements(ElementTreeNode? elm, int offsetX=0, int offsetY=0) {
             
             foreach(var actions in GetBatchesOfCanvasActions(elm, offsetX, offsetY)) {
-                Console.WriteLine("Sending batch of actions");
+                //Console.WriteLine("Sending batch of actions");
                 await ExecuteActionBatch(actions);
             }
         }
@@ -216,15 +217,20 @@ namespace Nemo
         private void MakeSnapshot()
         {
             var snapshot = new CanvasSnapshot(rootFrameNode);
+            Console.WriteLine(string.Format("Making snapshot {0}", snapshot.ToString()));
             snapshots.Push(snapshot);
+            Console.WriteLine(string.Format("Snapshots size {0}", snapshots.Count));
         }
 
         public async Task Undo()
         {
-            if(snapshots.Count == 0) {
+            Console.WriteLine(string.Format("Undo: Snapshots size before {0}", snapshots.Count));
+            if(snapshots.Count <= 1) {
                 return;
             }
-            var snapshot = snapshots.Pop();
+            snapshots.Pop();
+            var snapshot = snapshots.Peek();
+            Console.WriteLine(string.Format("Popped snapshot {0}", snapshot.ToString()));
             var currentWidth = Width;
             var currentHeight = Height;
             
@@ -232,6 +238,10 @@ namespace Nemo
             CurrentElement = rootFrameNode;
             SetNodesRendered(rootFrameNode, false);
             await ExecuteAction("clearCanvas", new object[] { currentWidth, currentHeight });
+            Image.OffsetX = rootFrameNode.OffsetX;
+            Image.OffsetY = rootFrameNode.OffsetY;
+            
+            Console.WriteLine(string.Format("Undo: Snapshots size AFTER {0}", snapshots.Count));
             await RenderImage(Image);
         }
     }
